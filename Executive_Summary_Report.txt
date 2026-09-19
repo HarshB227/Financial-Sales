@@ -1,0 +1,108 @@
+================================================================================
+EXECUTIVE SUMMARY REPORT
+Financial & Sales Analytics Dashboard
+Generated: 2026-09-19 12:39:47
+================================================================================
+
+1. FINANCIAL PERFORMANCE
+--------------------------------------------------------------------------------
+Total Revenue:        $     27,812,190.57
+Total Cost:           $     16,115,629.28
+Total Profit:         $     11,696,562.93
+Gross Profit Margin:               42.06%
+Average Order Value:  $            505.68
+
+2. SALES VOLUME
+--------------------------------------------------------------------------------
+Total Transactions:               55,000
+Total Units Sold:                 89,142
+Avg Units/Order:                    1.62
+
+3. CUSTOMER METRICS
+--------------------------------------------------------------------------------
+Total Customers:                   2,000
+Avg Revenue/Customer: $         13,906.10
+Avg Orders/Customer:                27.5
+
+4. CATEGORY PERFORMANCE (Top 5)
+--------------------------------------------------------------------------------
+1. Electronics          Revenue: $  16,318,014  Margin:  39.5%  Orders: 12,219
+2. Home & Garden        Revenue: $   5,230,146  Margin:  41.1%  Orders: 10,242
+3. Sports               Revenue: $   3,964,426  Margin:  48.0%  Orders: 10,179
+4. Clothing             Revenue: $   1,958,899  Margin:  53.9%  Orders: 12,147
+5. Books                Revenue: $     340,706  Margin:  43.0%  Orders: 10,213
+
+5. TOP 10 PRODUCTS BY REVENUE
+--------------------------------------------------------------------------------
+ 1. Headphones                     $   4,441,480.50
+ 2. Tablet                         $   3,569,342.95
+ 3. Laptop                         $   3,081,436.62
+ 4. Smart Watch                    $   2,229,864.14
+ 5. Smartphone                     $   1,546,694.33
+ 6. Furniture                      $   1,536,176.88
+ 7. Camera                         $   1,449,195.41
+ 8. Bedding                        $   1,280,569.39
+ 9. Decor                          $   1,275,841.69
+10. Dumbbells                      $   1,096,676.17
+
+6. STORE PERFORMANCE RANKINGS
+--------------------------------------------------------------------------------
+1. Miami Beach                    (South     ) $   3,660,937  Margin:  41.9%
+2. Chicago Downtown               (Midwest   ) $   3,486,829  Margin:  42.1%
+3. Boston Historic                (Northeast ) $   3,481,664  Margin:  42.1%
+4. Los Angeles Central            (West      ) $   3,475,663  Margin:  42.0%
+5. Seattle Tech Hub               (West      ) $   3,437,864  Margin:  42.2%
+6. New York Flagship              (Northeast ) $   3,430,081  Margin:  42.0%
+7. Houston Mall                   (South     ) $   3,420,681  Margin:  42.1%
+8. Dallas Metroplex               (South     ) $   3,418,471  Margin:  42.1%
+
+7. REGIONAL ANALYSIS
+--------------------------------------------------------------------------------
+South           Revenue: $  10,500,089 ( 37.8%)  Stores: 3  Customers: 2,000
+West            Revenue: $   6,913,527 ( 24.9%)  Stores: 2  Customers: 1,999
+Northeast       Revenue: $   6,911,745 ( 24.9%)  Stores: 2  Customers: 1,996
+Midwest         Revenue: $   3,486,829 ( 12.5%)  Stores: 1  Customers: 1,937
+
+8. CUSTOMER SEGMENTATION
+--------------------------------------------------------------------------------
+Occasional      Customers:    786  Revenue: $    10,940,652  Avg: $ 13,919.40
+Regular         Customers:    734  Revenue: $    10,256,446  Avg: $ 13,973.36
+New             Customers:    290  Revenue: $     3,999,144  Avg: $ 13,790.15
+Premium         Customers:    190  Revenue: $     2,615,948  Avg: $ 13,768.15
+
+9. MONTHLY PERFORMANCE (Last 12 Months)
+--------------------------------------------------------------------------------
+2023-04  Revenue: $     924,531  Profit: $     386,954  Margin:  41.9%
+2023-05  Revenue: $     965,850  Profit: $     402,958  Margin:  41.7%
+2023-06  Revenue: $     935,344  Profit: $     395,422  Margin:  42.3%
+2023-07  Revenue: $     977,745  Profit: $     412,679  Margin:  42.2%
+2023-08  Revenue: $   1,187,349  Profit: $     498,617  Margin:  42.0%
+2023-09  Revenue: $   1,162,957  Profit: $     487,366  Margin:  41.9%
+2023-10  Revenue: $     948,168  Profit: $     395,281  Margin:  41.7%
+2023-11  Revenue: $   1,639,923  Profit: $     687,736  Margin:  41.9%
+2023-12  Revenue: $   1,680,111  Profit: $     710,075  Margin:  42.3%
+2024-01  Revenue: $     973,473  Profit: $     411,330  Margin:  42.3%
+2024-02  Revenue: $     842,978  Profit: $     353,834  Margin:  42.0%
+2024-03  Revenue: $     278,023  Profit: $     116,280  Margin:  41.8%
+
+10. PAYMENT METHOD ANALYSIS
+--------------------------------------------------------------------------------
+Credit Card          Transactions:  24,858 ( 45.2%)  Revenue: $    12,770,324
+Debit Card           Transactions:  16,425 ( 29.9%)  Revenue: $     8,199,196
+Cash                 Transactions:   8,185 ( 14.9%)  Revenue: $     4,106,321
+Digital Wallet       Transactions:   5,532 ( 10.1%)  Revenue: $     2,736,350
+
+11. KEY INSIGHTS & RECOMMENDATIONS
+--------------------------------------------------------------------------------
+
+[+] Electronics drives 58.7% of revenue - consider expanding this category
+[+] 100% repeat customer rate indicates strong customer satisfaction
+[+] 42% profit margin is healthy - maintain current pricing strategy
+[+] Top 10 products account for 73% of revenue - protect these SKUs
+[+] Store performance is balanced - share best practices across locations
+[+] Q4 shows revenue spikes - optimize inventory for holiday season
+[+] Credit cards preferred (45%) - consider rewards program
+
+================================================================================
+END OF REPORT
+================================================================================

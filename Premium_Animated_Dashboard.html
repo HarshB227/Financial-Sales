@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial & Sales Analytics Dashboard - Premium Edition</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Loading Animation */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 1s ease 2s forwards;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255,255,255,0.2);
+            border-top: 8px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            animation: slideInUp 0.8s ease-out 2s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: slideInDown 0.8s ease-out 2.2s both;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(103, 126, 234, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .header-subtitle {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .meta-item i {
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        /* KPI Cards Container */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+            backdrop-filter: blur(10px);
+            padding: 35px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInScale 0.6s ease-out both;
+        }
+
+        .kpi-card:nth-child(1) { animation-delay: 2.4s; }
+        .kpi-card:nth-child(2) { animation-delay: 2.5s; }
+        .kpi-card:nth-child(3) { animation-delay: 2.6s; }
+        .kpi-card:nth-child(4) { animation-delay: 2.7s; }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .kpi-card:hover::before {
+            left: 100%;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .kpi-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .kpi-card:nth-child(1) .kpi-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .kpi-card:nth-child(2) .kpi-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .kpi-card:nth-child(3) .kpi-icon {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .kpi-card:nth-child(4) .kpi-icon {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white;
+        }
+
+        .kpi-label {
+            font-size: 0.9em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: countUp 2s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .kpi-subtext {
+            font-size: 0.9em;
+            color: #28a745;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .kpi-trend {
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            gap: 30px;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+
+        .chart-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .chart-card:nth-child(1) { animation-delay: 2.8s; }
+        .chart-card:nth-child(2) { animation-delay: 2.9s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .chart-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .chart-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.8s ease-out 3s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-stat {
+            text-align: center;
+        }
+
+        .footer-stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .chart-row { grid-template-columns: 1fr; }
+            .kpi-container { grid-template-columns: 1fr; }
+        }
+
+        /* Sparkles Effect */
+        .sparkle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Financial & Sales Analytics Dashboard</h1>
+            <p class="header-subtitle">Premium Edition • Real-time Business Intelligence</p>
+            <div class="header-meta">
+                <div class="meta-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>55,000 Transactions</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-users"></i>
+                    <span>2,000 Customers</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Jan 2022 - Mar 2024</span>
+                </div>
+                <div class="meta-item pulse">
+                    <i class="fas fa-circle" style="color: #28a745; font-size: 0.8em;"></i>
+                    <span>Live Data</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value">$27.8M</div>
+                <div class="kpi-subtext">
+                    <span class="kpi-trend">↗</span>
+                    <span>55,000 transactions</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="kpi-label">Total Profit</div>
+                <div class="kpi-value">$11.7M</div>
+                <div class="kpi-subtext">
+                    <span class="kpi-trend">↗</span>
+                    <span>42.06% margin</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="kpi-label">Avg Order Value</div>
+                <div class="kpi-value">$505.68</div>
+                <div class="kpi-subtext">
+                    <span class="kpi-trend">↗</span>
+                    <span>Per transaction</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <div class="kpi-label">Unique Customers</div>
+                <div class="kpi-value">2,000</div>
+                <div class="kpi-subtext">
+                    <span class="kpi-trend">↗</span>
+                    <span>100% repeat rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="chart-title">Revenue by Category</div>
+                        <div class="chart-badge">Top Performers</div>
+                    </div>
+                    <div id="categoryChart"></div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="chart-title">Monthly Revenue Trend</div>
+                        <div class="chart-badge">Growth</div>
+                    </div>
+                    <div id="monthlyChart"></div>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="chart-title">Top 10 Products</div>
+                        <div class="chart-badge">Best Sellers</div>
+                    </div>
+                    <div id="productsChart"></div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="chart-title">Store Performance</div>
+                        <div class="chart-badge">All Locations</div>
+                    </div>
+                    <div id="storesChart"></div>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-icon">
+                            <i class="fas fa-arrow-trend-up"></i>
+                        </div>
+                        <div class="chart-title">Revenue vs Profit</div>
+                        <div class="chart-badge">Comparison</div>
+                    </div>
+                    <div id="revenueProfitChart"></div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-icon">
+                            <i class="fas fa-users-gear"></i>
+                        </div>
+                        <div class="chart-title">Customer Segments</div>
+                        <div class="chart-badge">Distribution</div>
+                    </div>
+                    <div id="segmentChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="footer-stat">
+                    <div class="footer-stat-value">27</div>
+                    <div class="footer-stat-label">Products</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-value">5</div>
+                    <div class="footer-stat-label">Categories</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-value">8</div>
+                    <div class="footer-stat-label">Stores</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-value">4</div>
+                    <div class="footer-stat-label">Regions</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-value">89K</div>
+                    <div class="footer-stat-label">Units Sold</div>
+                </div>
+            </div>
+            <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
+                <i class="fas fa-chart-pie"></i> Premium Financial & Sales Analytics Dashboard •
+                Powered by Python & Plotly •
+                <i class="fas fa-clock"></i> Generated 2024
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Chart configuration with animations
+        const chartConfig = {
+            responsive: true,
+            displayModeBar: true,
+            modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
+            displaylogo: false
+        };
+
+        const animationConfig = {
+            transition: {
+                duration: 1000,
+                easing: 'cubic-in-out'
+            },
+            frame: {
+                duration: 1000
+            }
+        };
+
+        // Category Chart with gradient colors
+        const categoryData = {
+            x: [16318013.95, 5230145.63, 3964426.25, 1958898.89, 340705.85],
+            y: ['Electronics', 'Home & Garden', 'Sports', 'Clothing', 'Books'],
+            type: 'bar',
+            orientation: 'h',
+            marker: {
+                color: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'],
+                line: {
+                    color: 'rgba(255,255,255,0.5)',
+                    width: 2
+                }
+            },
+            text: ['$16.3M', '$5.2M', '$4.0M', '$2.0M', '$0.3M'],
+            textposition: 'outside',
+            textfont: {
+                size: 14,
+                color: '#333',
+                family: 'Poppins'
+            },
+            hovertemplate: '<b>%{y}</b><br>Revenue: $%{x:,.0f}<extra></extra>'
+        };
+
+        const categoryLayout = {
+            margin: { l: 140, r: 40, t: 20, b: 60 },
+            xaxis: {
+                title: 'Revenue ($)',
+                gridcolor: 'rgba(0,0,0,0.05)',
+                showgrid: true
+            },
+            yaxis: {
+                title: '',
+                tickfont: { size: 13 }
+            },
+            height: 350,
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins' },
+            ...animationConfig
+        };
+
+        Plotly.newPlot('categoryChart', [categoryData], categoryLayout, chartConfig);
+
+        // Monthly Chart with animations
+        const months = ['2023-04', '2023-05', '2023-06', '2023-07', '2023-08', '2023-09',
+                       '2023-10', '2023-11', '2023-12', '2024-01', '2024-02', '2024-03'];
+        const revenues = [924531.24, 965849.70, 935344.37, 977744.80, 1187349.12,
+                         1162956.88, 948168.24, 1639923.45, 1680111.07, 973472.70,
+                         842977.86, 278022.62];
+
+        const monthlyData = {
+            x: months,
+            y: revenues,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Revenue',
+            line: {
+                color: '#667eea',
+                width: 4,
+                shape: 'spline'
+            },
+            marker: {
+                size: 10,
+                color: '#764ba2',
+                line: {
+                    color: 'white',
+                    width: 2
+                }
+            },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(102, 126, 234, 0.1)',
+            hovertemplate: '<b>%{x}</b><br>Revenue: $%{y:,.0f}<extra></extra>'
+        };
+
+        const monthlyLayout = {
+            margin: { l: 60, r: 40, t: 20, b: 80 },
+            xaxis: {
+                title: 'Month',
+                tickangle: -45,
+                gridcolor: 'rgba(0,0,0,0.05)'
+            },
+            yaxis: {
+                title: 'Revenue ($)',
+                gridcolor: 'rgba(0,0,0,0.05)'
+            },
+            height: 350,
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins' },
+            ...animationConfig
+        };
+
+        Plotly.newPlot('monthlyChart', [monthlyData], monthlyLayout, chartConfig);
+
+        // Products Chart
+        const products = ['Headphones', 'Tablet', 'Laptop', 'Smart Watch', 'Smartphone',
+                         'Furniture', 'Camera', 'Bedding', 'Decor', 'Dumbbells'];
+        const productRevenues = [4441480.50, 3569342.95, 3081436.62, 2229864.14, 1546694.33,
+                                1536176.88, 1449195.41, 1280569.39, 1275841.69, 1096676.17];
+
+        const productsData = {
+            x: productRevenues,
+            y: products,
+            type: 'bar',
+            orientation: 'h',
+            marker: {
+                color: productRevenues,
+                colorscale: [
+                    [0, '#667eea'],
+                    [0.5, '#764ba2'],
+                    [1, '#f093fb']
+                ],
+                line: {
+                    color: 'rgba(255,255,255,0.5)',
+                    width: 2
+                }
+            },
+            text: productRevenues.map(v => `$${(v/1000000).toFixed(1)}M`),
+            textposition: 'outside',
+            textfont: {
+                size: 13,
+                color: '#333',
+                family: 'Poppins'
+            },
+            hovertemplate: '<b>%{y}</b><br>Revenue: $%{x:,.0f}<extra></extra>'
+        };
+
+        const productsLayout = {
+            margin: { l: 120, r: 40, t: 20, b: 60 },
+            xaxis: {
+                title: 'Revenue ($)',
+                gridcolor: 'rgba(0,0,0,0.05)'
+            },
+            yaxis: { title: '' },
+            height: 450,
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins' },
+            ...animationConfig
+        };
+
+        Plotly.newPlot('productsChart', [productsData], productsLayout, chartConfig);
+
+        // Stores Chart
+        const stores = ['Miami Beach', 'Chicago Downtown', 'Boston Historic', 'Los Angeles Central',
+                       'Seattle Tech Hub', 'New York Flagship', 'Houston Mall', 'Dallas Metroplex'];
+        const storeRevenues = [3660936.99, 3486829.34, 3481664.40, 3475662.99,
+                              3437864.28, 3430080.99, 3420680.64, 3418470.94];
+
+        const storesData = {
+            x: stores,
+            y: storeRevenues,
+            type: 'bar',
+            marker: {
+                color: storeRevenues,
+                colorscale: [
+                    [0, '#4facfe'],
+                    [0.5, '#667eea'],
+                    [1, '#764ba2']
+                ],
+                line: {
+                    color: 'rgba(255,255,255,0.5)',
+                    width: 2
+                }
+            },
+            text: storeRevenues.map(v => `$${(v/1000000).toFixed(1)}M`),
+            textposition: 'outside',
+            textfont: {
+                size: 13,
+                color: '#333',
+                family: 'Poppins'
+            },
+            hovertemplate: '<b>%{x}</b><br>Revenue: $%{y:,.0f}<extra></extra>'
+        };
+
+        const storesLayout = {
+            margin: { l: 60, r: 40, t: 20, b: 120 },
+            xaxis: {
+                title: '',
+                tickangle: -45
+            },
+            yaxis: {
+                title: 'Revenue ($)',
+                gridcolor: 'rgba(0,0,0,0.05)'
+            },
+            height: 450,
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins' },
+            ...animationConfig
+        };
+
+        Plotly.newPlot('storesChart', [storesData], storesLayout, chartConfig);
+
+        // Revenue vs Profit Chart
+        const profits = [386954, 402958, 395422, 412679, 498617, 487366,
+                        395281, 687736, 710075, 411330, 353834, 116280];
+
+        const revenueTrace = {
+            x: months,
+            y: revenues,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Revenue',
+            line: {
+                color: '#667eea',
+                width: 4,
+                shape: 'spline'
+            },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(102, 126, 234, 0.1)',
+            hovertemplate: '<b>Revenue</b><br>%{x}: $%{y:,.0f}<extra></extra>'
+        };
+
+        const profitTrace = {
+            x: months,
+            y: profits,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Profit',
+            line: {
+                color: '#28a745',
+                width: 4,
+                shape: 'spline'
+            },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(40, 167, 69, 0.1)',
+            hovertemplate: '<b>Profit</b><br>%{x}: $%{y:,.0f}<extra></extra>'
+        };
+
+        const revProfitLayout = {
+            margin: { l: 60, r: 40, t: 20, b: 80 },
+            xaxis: {
+                title: 'Month',
+                tickangle: -45,
+                gridcolor: 'rgba(0,0,0,0.05)'
+            },
+            yaxis: {
+                title: 'Amount ($)',
+                gridcolor: 'rgba(0,0,0,0.05)'
+            },
+            height: 350,
+            showlegend: true,
+            legend: {
+                x: 0.02,
+                y: 0.98,
+                bgcolor: 'rgba(255,255,255,0.9)',
+                bordercolor: 'rgba(0,0,0,0.1)',
+                borderwidth: 1
+            },
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins' },
+            ...animationConfig
+        };
+
+        Plotly.newPlot('revenueProfitChart', [profitTrace, revenueTrace], revProfitLayout, chartConfig);
+
+        // Customer Segments Pie Chart
+        const segmentData = {
+            values: [10940652, 10256446, 3999144, 2615948],
+            labels: ['Occasional', 'Regular', 'New', 'Premium'],
+            type: 'pie',
+            marker: {
+                colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe'],
+                line: {
+                    color: 'white',
+                    width: 3
+                }
+            },
+            textinfo: 'label+percent',
+            textposition: 'inside',
+            textfont: {
+                size: 14,
+                color: 'white',
+                family: 'Poppins',
+                weight: 600
+            },
+            hole: 0.4,
+            hovertemplate: '<b>%{label}</b><br>Revenue: $%{value:,.0f}<br>Share: %{percent}<extra></extra>'
+        };
+
+        const segmentLayout = {
+            margin: { l: 40, r: 40, t: 40, b: 40 },
+            height: 350,
+            showlegend: true,
+            legend: {
+                orientation: 'v',
+                x: 1,
+                y: 0.5,
+                bgcolor: 'rgba(255,255,255,0.9)',
+                bordercolor: 'rgba(0,0,0,0.1)',
+                borderwidth: 1
+            },
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins' },
+            ...animationConfig,
+            annotations: [{
+                text: '$27.8M<br>Total',
+                x: 0.5,
+                y: 0.5,
+                font: {
+                    size: 20,
+                    family: 'Poppins',
+                    weight: 700,
+                    color: '#667eea'
+                },
+                showarrow: false
+            }]
+        };
+
+        Plotly.newPlot('segmentChart', [segmentData], segmentLayout, chartConfig);
+
+        // Add sparkle effects randomly
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * window.innerWidth + 'px';
+            sparkle.style.top = Math.random() * window.innerHeight + 'px';
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => sparkle.remove(), 1500);
+        }
+
+        setInterval(createSparkle, 500);
+    </script>
+</body>
+</html>
