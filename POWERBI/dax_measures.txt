@@ -1,0 +1,550 @@
+================================================================================
+FINANCIAL & SALES ANALYTICS DASHBOARD - DAX MEASURES
+================================================================================
+Purpose: DAX formulas for YoY Growth, Cohort Retention, RFM Segmentation
+Power BI Desktop Version: Latest
+================================================================================
+
+--------------------------------------------------------------------------------
+SECTION 1: BASIC MEASURES - Revenue & Profitability
+--------------------------------------------------------------------------------
+
+-- Total Revenue
+Total Revenue =
+SUM(fact_sales[revenue])
+
+-- Total Profit
+Total Profit =
+SUM(fact_sales[profit])
+
+-- Total Cost
+Total Cost =
+SUM(fact_sales[cost])
+
+-- Profit Margin %
+Profit Margin % =
+DIVIDE([Total Profit], [Total Revenue], 0) * 100
+
+-- Average Order Value
+Average Order Value =
+AVERAGE(fact_sales[revenue])
+
+-- Total Transactions
+Total Transactions =
+COUNTROWS(fact_sales)
+
+-- Total Quantity Sold
+Total Quantity Sold =
+SUM(fact_sales[quantity])
+
+-- Unique Customers
+Unique Customers =
+DISTINCTCOUNT(fact_sales[customer_id])
+
+--------------------------------------------------------------------------------
+SECTION 2: TIME INTELLIGENCE MEASURES - YoY & MoM Growth
+--------------------------------------------------------------------------------
+
+-- Previous Year Revenue
+Previous Year Revenue =
+CALCULATE(
+    [Total Revenue],
+    DATEADD(dim_date[date], -1, YEAR)
+)
+
+-- Year over Year Revenue Growth
+YoY Revenue Growth =
+[Total Revenue] - [Previous Year Revenue]
+
+-- Year over Year Revenue Growth %
+YoY Revenue Growth % =
+DIVIDE(
+    [YoY Revenue Growth],
+    [Previous Year Revenue],
+    0
+) * 100
+
+-- Previous Month Revenue
+Previous Month Revenue =
+CALCULATE(
+    [Total Revenue],
+    DATEADD(dim_date[date], -1, MONTH)
+)
+
+-- Month over Month Revenue Growth
+MoM Revenue Growth =
+[Total Revenue] - [Previous Month Revenue]
+
+-- Month over Month Revenue Growth %
+MoM Revenue Growth % =
+DIVIDE(
+    [MoM Revenue Growth],
+    [Previous Month Revenue],
+    0
+) * 100
+
+-- Year to Date Revenue
+YTD Revenue =
+TOTALYTD(
+    [Total Revenue],
+    dim_date[date]
+)
+
+-- Previous Year YTD Revenue
+Previous Year YTD Revenue =
+CALCULATE(
+    [YTD Revenue],
+    DATEADD(dim_date[date], -1, YEAR)
+)
+
+-- YTD vs Previous YTD Growth %
+YTD vs PY Growth % =
+DIVIDE(
+    [YTD Revenue] - [Previous Year YTD Revenue],
+    [Previous Year YTD Revenue],
+    0
+) * 100
+
+-- Quarter to Date Revenue
+QTD Revenue =
+TOTALQTD(
+    [Total Revenue],
+    dim_date[date]
+)
+
+-- Month to Date Revenue
+MTD Revenue =
+TOTALMTD(
+    [Total Revenue],
+    dim_date[date]
+)
+
+-- Same Period Last Year
+SPLY Revenue =
+CALCULATE(
+    [Total Revenue],
+    SAMEPERIODLASTYEAR(dim_date[date])
+)
+
+-- SPLY Growth %
+SPLY Growth % =
+DIVIDE(
+    [Total Revenue] - [SPLY Revenue],
+    [SPLY Revenue],
+    0
+) * 100
+
+--------------------------------------------------------------------------------
+SECTION 3: CUSTOMER LIFETIME VALUE & RETENTION
+--------------------------------------------------------------------------------
+
+-- Customer Lifetime Value
+Customer Lifetime Value =
+CALCULATE(
+    SUM(fact_sales[revenue]),
+    ALLEXCEPT(fact_sales, fact_sales[customer_id])
+)
+
+-- Average Customer Lifetime Value
+Avg Customer Lifetime Value =
+AVERAGEX(
+    VALUES(fact_sales[customer_id]),
+    [Customer Lifetime Value]
+)
+
+-- Repeat Customer Count
+Repeat Customers =
+CALCULATE(
+    DISTINCTCOUNT(fact_sales[customer_id]),
+    FILTER(
+        VALUES(fact_sales[customer_id]),
+        CALCULATE(COUNTROWS(fact_sales)) > 1
+    )
+)
+
+-- Repeat Customer Rate %
+Repeat Customer Rate % =
+DIVIDE(
+    [Repeat Customers],
+    [Unique Customers],
+    0
+) * 100
+
+-- New Customers (First Purchase in Period)
+New Customers =
+CALCULATE(
+    DISTINCTCOUNT(fact_sales[customer_id]),
+    FILTER(
+        ALL(dim_date),
+        dim_date[date] = CALCULATE(MIN(fact_sales[transaction_date]))
+    )
+)
+
+-- Customer Retention Rate
+Customer Retention Rate =
+VAR CurrentPeriodCustomers = [Unique Customers]
+VAR PreviousPeriodCustomers =
+    CALCULATE(
+        [Unique Customers],
+        DATEADD(dim_date[date], -1, MONTH)
+    )
+VAR ReturnedCustomers =
+    CALCULATE(
+        DISTINCTCOUNT(fact_sales[customer_id]),
+        FILTER(
+            ALL(dim_date),
+            dim_date[date] <= MAX(dim_date[date]) &&
+            dim_date[date] >= EDATE(MAX(dim_date[date]), -1)
+        )
+    )
+RETURN
+    DIVIDE(ReturnedCustomers, PreviousPeriodCustomers, 0) * 100
+
+-- Average Purchase Frequency
+Avg Purchase Frequency =
+DIVIDE(
+    [Total Transactions],
+    [Unique Customers],
+    0
+)
+
+--------------------------------------------------------------------------------
+SECTION 4: RFM SEGMENTATION MEASURES
+--------------------------------------------------------------------------------
+
+-- Recency (Days Since Last Purchase)
+Recency Days =
+VAR MaxDateInData = MAX(dim_date[date])
+VAR LastPurchaseDate =
+    CALCULATE(
+        MAX(fact_sales[transaction_date]),
+        ALLEXCEPT(fact_sales, fact_sales[customer_id])
+    )
+RETURN
+    DATEDIFF(LastPurchaseDate, MaxDateInData, DAY)
+
+-- Frequency (Total Purchases)
+Frequency =
+CALCULATE(
+    COUNTROWS(fact_sales),
+    ALLEXCEPT(fact_sales, fact_sales[customer_id])
+)
+
+-- Monetary (Total Revenue)
+Monetary =
+CALCULATE(
+    SUM(fact_sales[revenue]),
+    ALLEXCEPT(fact_sales, fact_sales[customer_id])
+)
+
+-- Recency Score (1-5, lower days = higher score)
+Recency Score =
+VAR RecencyValue = [Recency Days]
+RETURN
+    SWITCH(
+        TRUE(),
+        RecencyValue <= 30, 5,
+        RecencyValue <= 60, 4,
+        RecencyValue <= 90, 3,
+        RecencyValue <= 180, 2,
+        1
+    )
+
+-- Frequency Score (1-5, higher purchases = higher score)
+Frequency Score =
+VAR FrequencyValue = [Frequency]
+RETURN
+    SWITCH(
+        TRUE(),
+        FrequencyValue >= 20, 5,
+        FrequencyValue >= 10, 4,
+        FrequencyValue >= 5, 3,
+        FrequencyValue >= 2, 2,
+        1
+    )
+
+-- Monetary Score (1-5, higher spend = higher score)
+Monetary Score =
+VAR MonetaryValue = [Monetary]
+RETURN
+    SWITCH(
+        TRUE(),
+        MonetaryValue >= 5000, 5,
+        MonetaryValue >= 2000, 4,
+        MonetaryValue >= 1000, 3,
+        MonetaryValue >= 500, 2,
+        1
+    )
+
+-- RFM Total Score
+RFM Score =
+[Recency Score] + [Frequency Score] + [Monetary Score]
+
+-- RFM Segment Classification
+RFM Segment =
+VAR R = [Recency Score]
+VAR F = [Frequency Score]
+VAR M = [Monetary Score]
+RETURN
+    SWITCH(
+        TRUE(),
+        R >= 4 && F >= 4 && M >= 4, "Champions",
+        R >= 3 && F >= 3 && M >= 3, "Loyal Customers",
+        R >= 4 && F <= 2, "New Customers",
+        R <= 2 && F >= 3 && M >= 3, "At Risk",
+        R <= 2 && F <= 2, "Lost Customers",
+        M >= 4, "Big Spenders",
+        "Regular Customers"
+    )
+
+--------------------------------------------------------------------------------
+SECTION 5: COHORT ANALYSIS MEASURES
+--------------------------------------------------------------------------------
+
+-- Customer Cohort Month (First Purchase Month)
+Cohort Month =
+FORMAT(
+    CALCULATE(
+        MIN(fact_sales[transaction_date]),
+        ALLEXCEPT(fact_sales, fact_sales[customer_id])
+    ),
+    "YYYY-MM"
+)
+
+-- Cohort Size (Number of Customers in Cohort)
+Cohort Size =
+CALCULATE(
+    DISTINCTCOUNT(fact_sales[customer_id]),
+    ALLEXCEPT(fact_sales, fact_sales[customer_id])
+)
+
+-- Months Since First Purchase
+Months Since Cohort =
+VAR CohortDate =
+    DATE(
+        VALUE(LEFT([Cohort Month], 4)),
+        VALUE(RIGHT([Cohort Month], 2)),
+        1
+    )
+VAR CurrentDate = MAX(dim_date[date])
+RETURN
+    DATEDIFF(CohortDate, CurrentDate, MONTH)
+
+-- Cohort Retention %
+Cohort Retention % =
+VAR CohortCustomers =
+    CALCULATE(
+        DISTINCTCOUNT(fact_sales[customer_id]),
+        ALLEXCEPT(fact_sales, fact_sales[customer_id])
+    )
+VAR ActiveCustomers = [Unique Customers]
+RETURN
+    DIVIDE(ActiveCustomers, CohortCustomers, 0) * 100
+
+--------------------------------------------------------------------------------
+SECTION 6: PRODUCT & CATEGORY ANALYTICS
+--------------------------------------------------------------------------------
+
+-- Revenue per Product
+Revenue per Product =
+DIVIDE(
+    [Total Revenue],
+    DISTINCTCOUNT(fact_sales[product_id]),
+    0
+)
+
+-- Category Mix % (Percentage of Total Revenue)
+Category Mix % =
+DIVIDE(
+    [Total Revenue],
+    CALCULATE([Total Revenue], ALL(dim_product[category])),
+    0
+) * 100
+
+-- Top Product Revenue
+Top Product Revenue =
+CALCULATE(
+    [Total Revenue],
+    TOPN(1, ALL(dim_product[product_name]), [Total Revenue], DESC)
+)
+
+-- Product Contribution %
+Product Contribution % =
+DIVIDE(
+    [Total Revenue],
+    CALCULATE([Total Revenue], ALL(dim_product)),
+    0
+) * 100
+
+-- Units per Transaction
+Units per Transaction =
+DIVIDE(
+    [Total Quantity Sold],
+    [Total Transactions],
+    0
+)
+
+--------------------------------------------------------------------------------
+SECTION 7: STORE & REGIONAL PERFORMANCE
+--------------------------------------------------------------------------------
+
+-- Regional Revenue Share %
+Regional Revenue Share % =
+DIVIDE(
+    [Total Revenue],
+    CALCULATE([Total Revenue], ALL(dim_store[region])),
+    0
+) * 100
+
+-- Store Performance vs Average
+Store vs Avg Performance =
+VAR StoreRevenue = [Total Revenue]
+VAR AvgStoreRevenue =
+    CALCULATE(
+        AVERAGEX(VALUES(dim_store[store_id]), [Total Revenue]),
+        ALL(dim_store)
+    )
+RETURN
+    DIVIDE(StoreRevenue - AvgStoreRevenue, AvgStoreRevenue, 0) * 100
+
+-- Best Performing Store Revenue
+Best Store Revenue =
+CALCULATE(
+    [Total Revenue],
+    TOPN(1, ALL(dim_store[store_name]), [Total Revenue], DESC)
+)
+
+--------------------------------------------------------------------------------
+SECTION 8: ADVANCED KPI MEASURES
+--------------------------------------------------------------------------------
+
+-- Revenue per Customer
+Revenue per Customer =
+DIVIDE(
+    [Total Revenue],
+    [Unique Customers],
+    0
+)
+
+-- Profit per Customer
+Profit per Customer =
+DIVIDE(
+    [Total Profit],
+    [Unique Customers],
+    0
+)
+
+-- Average Discount %
+Avg Discount % =
+AVERAGE(fact_sales[discount_percent])
+
+-- Discounted Sales %
+Discounted Sales % =
+DIVIDE(
+    CALCULATE([Total Transactions], fact_sales[discount_percent] > 0),
+    [Total Transactions],
+    0
+) * 100
+
+-- Revenue from Discounts
+Revenue from Discounts =
+CALCULATE(
+    [Total Revenue],
+    fact_sales[discount_percent] > 0
+)
+
+-- Revenue Growth Rate (Annual)
+Revenue CAGR =
+VAR FirstYearRevenue =
+    CALCULATE(
+        [Total Revenue],
+        FILTER(ALL(dim_date), dim_date[year] = MIN(dim_date[year]))
+    )
+VAR LastYearRevenue =
+    CALCULATE(
+        [Total Revenue],
+        FILTER(ALL(dim_date), dim_date[year] = MAX(dim_date[year]))
+    )
+VAR Years = MAX(dim_date[year]) - MIN(dim_date[year])
+RETURN
+    (POWER(DIVIDE(LastYearRevenue, FirstYearRevenue, 1), 1/Years) - 1) * 100
+
+-- Moving Average Revenue (3 Months)
+3M Moving Avg Revenue =
+CALCULATE(
+    AVERAGEX(
+        DATESINPERIOD(
+            dim_date[date],
+            LASTDATE(dim_date[date]),
+            -3,
+            MONTH
+        ),
+        [Total Revenue]
+    )
+)
+
+-- Weekend vs Weekday Revenue
+Weekend Revenue % =
+DIVIDE(
+    CALCULATE([Total Revenue], dim_date[is_weekend] = 1),
+    [Total Revenue],
+    0
+) * 100
+
+--------------------------------------------------------------------------------
+SECTION 9: CONDITIONAL FORMATTING MEASURES
+--------------------------------------------------------------------------------
+
+-- Revenue Trend Indicator
+Revenue Trend =
+IF(
+    [YoY Revenue Growth %] > 0,
+    "▲ Up",
+    IF([YoY Revenue Growth %] < 0, "▼ Down", "→ Flat")
+)
+
+-- Performance Rating
+Performance Rating =
+SWITCH(
+    TRUE(),
+    [Profit Margin %] >= 30, "Excellent",
+    [Profit Margin %] >= 20, "Good",
+    [Profit Margin %] >= 10, "Average",
+    "Below Average"
+)
+
+-- Traffic Light KPI
+Revenue KPI Status =
+VAR Target = 1000000  // Adjust based on your target
+VAR Achievement = DIVIDE([Total Revenue], Target, 0)
+RETURN
+    SWITCH(
+        TRUE(),
+        Achievement >= 1, "🟢 On Target",
+        Achievement >= 0.8, "🟡 Close",
+        "🔴 Below Target"
+    )
+
+================================================================================
+END OF DAX MEASURES
+================================================================================
+Total Measures: 70+ DAX formulas covering:
+✓ Basic Revenue & Profit metrics
+✓ Time Intelligence (YoY, MoM, YTD, QTD)
+✓ Customer Lifetime Value & Retention
+✓ RFM Segmentation (Recency, Frequency, Monetary)
+✓ Cohort Analysis
+✓ Product & Category Analytics
+✓ Store & Regional Performance
+✓ Advanced KPIs and Growth Metrics
+✓ Conditional Formatting & Status Indicators
+
+USAGE INSTRUCTIONS:
+1. Open Power BI Desktop
+2. Load data from MySQL or CSV files
+3. Go to "Modeling" tab > "New Measure"
+4. Copy and paste each measure
+5. Format measures appropriately (%, currency, decimal places)
+6. Use in visuals and cards for dashboard creation
+
+================================================================================
