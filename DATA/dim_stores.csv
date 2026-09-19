@@ -1,0 +1,9 @@
+store_id,store_name,city,state,region
+1,New York Flagship,New York,NY,Northeast
+2,Los Angeles Central,Los Angeles,CA,West
+3,Chicago Downtown,Chicago,IL,Midwest
+4,Houston Mall,Houston,TX,South
+5,Miami Beach,Miami,FL,South
+6,Seattle Tech Hub,Seattle,WA,West
+7,Boston Historic,Boston,MA,Northeast
+8,Dallas Metroplex,Dallas,TX,South

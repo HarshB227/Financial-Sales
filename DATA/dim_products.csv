@@ -1,0 +1,28 @@
+product_id,product_name,category,base_price,cost_price
+1,Laptop,Electronics,1013.23,559.81
+2,Smartphone,Electronics,521.29,298.35
+3,Tablet,Electronics,1144.24,706.76
+4,Headphones,Electronics,1354.44,756.72
+5,Smart Watch,Electronics,719.59,397.92
+6,Camera,Electronics,445.16,267.34
+7,T-Shirt,Clothing,24.78,10.4
+8,Jeans,Clothing,136.98,62.26
+9,Jacket,Clothing,59.68,27.39
+10,Dress,Clothing,165.7,66.39
+11,Shoes,Clothing,165.05,77.54
+12,Accessories,Clothing,81.25,33.76
+13,Furniture,Home & Garden,479.89,256.1
+14,Kitchenware,Home & Garden,73.59,37.51
+15,Bedding,Home & Garden,428.32,240.02
+16,Decor,Home & Garden,409.35,234.55
+17,Garden Tools,Home & Garden,282.03,168.46
+18,Running Shoes,Sports,166.95,84.34
+19,Yoga Mat,Sports,336.03,172.0
+20,Dumbbells,Sports,348.14,176.76
+21,Bicycle,Sports,289.21,131.47
+22,Sports Apparel,Sports,110.46,52.9
+23,Fiction,Books,13.19,6.9
+24,Non-Fiction,Books,14.04,7.41
+25,Educational,Books,35.43,19.01
+26,Comics,Books,24.81,12.92
+27,Magazines,Books,20.68,12.28
